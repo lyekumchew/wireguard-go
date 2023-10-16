@@ -13,6 +13,7 @@ import (
 	"os/signal"
 	"runtime"
 	"strconv"
+	"strings"
 
 	"golang.org/x/sys/unix"
 	"golang.zx2c4.com/wireguard/conn"
@@ -20,6 +21,22 @@ import (
 	"golang.zx2c4.com/wireguard/ipc"
 	"golang.zx2c4.com/wireguard/tun"
 )
+
+func init() {
+	// 31/247/123
+	reserved := os.Getenv("WG_RESERVED_FIELD")
+	if reserved == "" {
+		return
+	}
+	reservedFields := strings.Split(reserved, "/")
+	if len(reservedFields) != 3 {
+		return
+	}
+	for i := 0; i < 3; i++ {
+		reservedInt, _ := strconv.Atoi(reservedFields[i])
+		conn.ReservedFields[i] = byte(reservedInt)
+	}
+}
 
 const (
 	ExitSetupSuccess = 0
